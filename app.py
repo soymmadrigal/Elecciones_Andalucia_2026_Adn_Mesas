@@ -32,6 +32,11 @@ def load_data() -> pd.DataFrame:
     return pd.read_parquet(DATA_PATH)
 
 
+@st.cache_data(show_spinner=False)
+def to_csv_bytes(df: pd.DataFrame) -> bytes:
+    return df.to_csv(index=False).encode("utf-8-sig")
+
+
 def fmt_int(value: float) -> str:
     return f"{int(value):,}".replace(",", ".")
 
@@ -54,6 +59,10 @@ def main() -> None:
     st.caption(
         "Cada mesa se compara con el patrón de su propio municipio. "
         "El objetivo es detectar microclimas electorales, no solo ganadores."
+    )
+    st.info(
+        "Bloque derecha: PP, VOX, SALF, FE de las JONS, NA y Partido Autónomos. "
+        "Bloque izquierda: PSOE-A, PorA, ADELANTE ANDALUCÍA y PCPA."
     )
 
     with st.sidebar:
@@ -109,6 +118,21 @@ def main() -> None:
     c4.metric("Participación", pct(participacion))
     c5.metric("Rareza media", f"{filtered['Rareza_ADN'].mean():.1f}".replace(".", ",") if len(filtered) else "0")
 
+    if partido != "Todos":
+        st.success(
+            f"Filtro por partido activo: {partido}. "
+            f"Mesas con al menos {fmt_int(min_votos_partido)} votos para ese partido. "
+            f"Votos de {partido} en la selección: {fmt_int(filtered[partido].sum())}."
+        )
+
+    with st.expander("Cómo leer rareza, margen y fragmentación", expanded=False):
+        st.markdown(
+            "- **Rareza ADN:** cuánto se aparta una mesa del patrón de su propio municipio. Alto significa microclima electoral distinto.\n"
+            "- **Margen del ganador:** diferencia entre el primer y segundo partido. Bajo significa mesa más competida.\n"
+            "- **Fragmentación:** número efectivo de partidos con voto relevante. Alto significa voto más repartido.\n"
+            "- **Brecha derecha-izquierda:** derecha menos izquierda. Negativo pesa más hacia izquierda; positivo pesa más hacia derecha."
+        )
+
     left, right = st.columns([1.15, 1])
     with left:
         st.subheader("Votos por tipo de mesa")
@@ -119,6 +143,12 @@ def main() -> None:
         )
         st.bar_chart(by_type.set_index("Tipo_ADN")["votos"], color="#ffd166")
         st.dataframe(by_type, hide_index=True, use_container_width=True)
+        st.download_button(
+            "Descargar resumen por tipo CSV",
+            to_csv_bytes(by_type),
+            "resumen_tipos_adn.csv",
+            "text/csv",
+        )
 
     with right:
         st.subheader("Bloques en la selección")
@@ -134,6 +164,10 @@ def main() -> None:
             )
 
     st.subheader("Mapa conceptual ADN")
+    st.caption(
+        "No es un mapa geográfico. Cada punto es una mesa: a la izquierda predomina el bloque de izquierdas, "
+        "a la derecha el bloque de derechas, y cuanto más alto aparece más distinta es frente a su propio municipio."
+    )
     chart_df = filtered[["Brecha_bloques", "Rareza_ADN", "Tipo_ADN", "Votos Totales"]].rename(
         columns={
             "Brecha_bloques": "Brecha derecha-izquierda",
@@ -161,6 +195,12 @@ def main() -> None:
         table_cols.insert(5, partido)
     table = filtered.sort_values(ordenar, ascending=False)[table_cols].head(100).copy()
     st.dataframe(table, hide_index=True, use_container_width=True)
+    st.download_button(
+        "Descargar mesas filtradas CSV",
+        to_csv_bytes(filtered.sort_values(ordenar, ascending=False)[table_cols]),
+        "mesas_filtradas_adn.csv",
+        "text/csv",
+    )
 
     with st.expander("Notas metodológicas y seguridad"):
         st.markdown(
