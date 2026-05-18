@@ -166,10 +166,10 @@ def main() -> None:
         block_df = pd.DataFrame({"bloque": ["Derecha", "Izquierda"], "votos": [derecha, izquierda]}).set_index("bloque")
         st.bar_chart(block_df, color=["#28a7ff"])
 
-        if partido != "Todos":
+        if partido != "Todos" and partido in filtered.columns:
             st.info(
-                f"Filtro activo: mesas con al menos {fmt_int(min_votos_partido)} votos para {partido}. "
-                f"Votos de {partido} en la selección: {fmt_int(filtered[partido].sum())}."
+                f"Filtro activo: mesas ganadas por {partido}. "
+                f"Votos de {partido} en esas mesas: {fmt_int(filtered[partido].sum())}."
             )
 
     st.subheader("Mapa conceptual ADN")
