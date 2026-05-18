@@ -16,6 +16,9 @@ TYPE_INFO = {
     "Mesa mixta": ("#d7d2c8", "Combina señales moderadas de varios tipos."),
 }
 
+TYPE_ORDER = list(TYPE_INFO.keys())
+TYPE_COLORS = [TYPE_INFO[name][0] for name in TYPE_ORDER]
+
 PARTIDOS = [
     "PP", "PSOE-A", "VOX", "PorA", "ADELANTE ANDALUCÍA", "SALF", "PACMA",
     "MUNDO+JUSTO", "ESCAÑOS EN BLANCO", "FE de las JONS", "ALM", "NA",
@@ -150,7 +153,35 @@ def main() -> None:
             .agg(mesas=("Mesa", "count"), votos=("Votos Totales", "sum"), rareza=("Rareza_ADN", "mean"))
             .sort_values("votos", ascending=False)
         )
-        st.bar_chart(by_type.set_index("Tipo_ADN")["votos"], color="#ffd166")
+        st.vega_lite_chart(
+            by_type,
+            {
+                "height": 280,
+                "mark": {"type": "bar", "cornerRadiusEnd": 4},
+                "encoding": {
+                    "y": {
+                        "field": "Tipo_ADN",
+                        "type": "nominal",
+                        "sort": TYPE_ORDER,
+                        "title": "Tipo de mesa",
+                    },
+                    "x": {"field": "votos", "type": "quantitative", "title": "Votos contemplados"},
+                    "color": {
+                        "field": "Tipo_ADN",
+                        "type": "nominal",
+                        "scale": {"domain": TYPE_ORDER, "range": TYPE_COLORS},
+                        "legend": None,
+                    },
+                    "tooltip": [
+                        {"field": "Tipo_ADN", "title": "Tipo"},
+                        {"field": "mesas", "title": "Mesas", "format": ","},
+                        {"field": "votos", "title": "Votos", "format": ","},
+                        {"field": "rareza", "title": "Rareza media", "format": ".2f"},
+                    ],
+                },
+            },
+            use_container_width=True,
+        )
         st.dataframe(by_type, hide_index=True, use_container_width=True)
         st.download_button(
             "Descargar resumen por tipo CSV",
@@ -185,12 +216,43 @@ def main() -> None:
             "Votos Totales": "Votos",
         }
     )
-    st.scatter_chart(
+    st.vega_lite_chart(
         chart_df,
-        x="Brecha derecha-izquierda",
-        y="Rareza ADN",
-        color="Tipo",
-        size="Votos",
+        {
+            "height": 430,
+            "mark": {"type": "circle", "opacity": 0.72},
+            "encoding": {
+                "x": {
+                    "field": "Brecha derecha-izquierda",
+                    "type": "quantitative",
+                    "title": "Brecha derecha-izquierda",
+                    "scale": {"domain": [-0.85, 1.0]},
+                },
+                "y": {
+                    "field": "Rareza ADN",
+                    "type": "quantitative",
+                    "title": "Rareza ADN",
+                },
+                "color": {
+                    "field": "Tipo",
+                    "type": "nominal",
+                    "scale": {"domain": TYPE_ORDER, "range": TYPE_COLORS},
+                    "legend": {"title": "Tipo"},
+                },
+                "size": {
+                    "field": "Votos",
+                    "type": "quantitative",
+                    "legend": {"title": "Votos"},
+                    "scale": {"range": [12, 190]},
+                },
+                "tooltip": [
+                    {"field": "Tipo", "title": "Tipo"},
+                    {"field": "Votos", "title": "Votos", "format": ","},
+                    {"field": "Brecha derecha-izquierda", "title": "Brecha", "format": ".3f"},
+                    {"field": "Rareza ADN", "title": "Rareza", "format": ".2f"},
+                ],
+            },
+        },
         use_container_width=True,
     )
 
