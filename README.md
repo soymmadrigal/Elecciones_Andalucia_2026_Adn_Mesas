@@ -2,6 +2,14 @@
 
 Aplicación Streamlit para explorar el índice **ADN Electoral de Mesa** a partir de datos electorales consolidados.
 
+## Disclaimer legal
+
+Esta herramienta es una visualización analítica independiente y no oficial. Las tipologías, índices y agrupaciones ideológicas son criterios de análisis propios y no forman parte de los resultados oficiales.
+
+Los datos oficiales pueden consultarse y descargarse en:
+
+https://resultados.eleccionesparlamentoandalucia2026.es/es/descargas
+
 ## Qué muestra
 
 - Tipología de mesas: isla, inversora, frontera, amplificador, líquida, ancla y mixta.
@@ -9,6 +17,8 @@ Aplicación Streamlit para explorar el índice **ADN Electoral de Mesa** a parti
 - Número de mesas y votos contemplados por cada selección.
 - Comparativa de bloques derecha/izquierda en las mesas filtradas.
 - Tabla de mesas destacadas y gráfico conceptual de rareza ADN frente a brecha de bloques.
+- Descarga en CSV de las mesas filtradas y del resumen por tipo.
+- Explicaciones integradas de rareza ADN, margen del ganador, fragmentación y brecha de bloques.
 
 ## Datos
 

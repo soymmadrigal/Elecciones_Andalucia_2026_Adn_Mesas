@@ -64,6 +64,16 @@ def main() -> None:
         "Bloque derecha: PP, VOX, SALF, FE de las JONS, NA y Partido Autónomos. "
         "Bloque izquierda: PSOE-A, PorA, ADELANTE ANDALUCÍA y PCPA."
     )
+    st.warning(
+        "Disclaimer legal: esta herramienta es una visualización analítica independiente y no oficial. "
+        "Las tipologías, índices y agrupaciones ideológicas son criterios de análisis propios y no forman "
+        "parte de los resultados oficiales."
+    )
+    st.markdown(
+        "Datos oficiales: "
+        "[resultados.eleccionesparlamentoandalucia2026.es/es/descargas]"
+        "(https://resultados.eleccionesparlamentoandalucia2026.es/es/descargas)"
+    )
 
     with st.sidebar:
         st.header("Filtros")
@@ -73,8 +83,8 @@ def main() -> None:
         municipio_text = st.text_input("Municipio contiene", "")
         tipos = ["Todos"] + [t for t in TYPE_INFO if t in df["Tipo_ADN"].unique()]
         tipo = st.selectbox("Tipo ADN", tipos)
-        partido = st.selectbox("Partido", ["Todos"] + party_cols)
-        min_votos_partido = st.number_input("Votos mínimos del partido", min_value=1, value=1, step=1)
+        ganadores = sorted(df["Ganador"].dropna().unique().tolist())
+        partido = st.selectbox("Partido ganador", ["Todos"] + ganadores)
         ordenar = st.selectbox(
             "Ordenar mesas destacadas",
             ["Rareza_ADN", "Votos Totales", "Margen_ganador", "Fragmentacion_ENP"],
@@ -102,7 +112,7 @@ def main() -> None:
     if tipo != "Todos":
         filtered = filtered[filtered["Tipo_ADN"].eq(tipo)]
     if partido != "Todos":
-        filtered = filtered[filtered[partido].ge(min_votos_partido)]
+        filtered = filtered[filtered["Ganador"].eq(partido)]
 
     votos = filtered["Votos Totales"].sum()
     censo = filtered["Censo Total"].sum()
@@ -120,9 +130,8 @@ def main() -> None:
 
     if partido != "Todos":
         st.success(
-            f"Filtro por partido activo: {partido}. "
-            f"Mesas con al menos {fmt_int(min_votos_partido)} votos para ese partido. "
-            f"Votos de {partido} en la selección: {fmt_int(filtered[partido].sum())}."
+            f"Filtro por partido ganador activo: mesas ganadas por {partido}. "
+            f"Votos de {partido} en esas mesas: {fmt_int(filtered[partido].sum()) if partido in filtered.columns else '0'}."
         )
 
     with st.expander("Cómo leer rareza, margen y fragmentación", expanded=False):
@@ -191,7 +200,7 @@ def main() -> None:
         "Bloque_ganador", "Participacion", "Rareza_ADN", "Fragmentacion_ENP",
         "Margen_ganador", "Brecha_bloques",
     ]
-    if partido != "Todos":
+    if partido != "Todos" and partido in filtered.columns:
         table_cols.insert(5, partido)
     table = filtered.sort_values(ordenar, ascending=False)[table_cols].head(100).copy()
     st.dataframe(table, hide_index=True, use_container_width=True)
