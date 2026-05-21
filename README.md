@@ -19,6 +19,7 @@ https://resultados.eleccionesparlamentoandalucia2026.es/es/descargas
 - Tabla de mesas destacadas y gráfico conceptual de rareza ADN frente a brecha de bloques.
 - Descarga en CSV de las mesas filtradas y del resumen por tipo.
 - Explicaciones integradas de rareza ADN, margen del ganador, fragmentación y brecha de bloques.
+- Diseño responsive con ajustes para escritorio, tablet y móvil.
 
 ## Datos
 

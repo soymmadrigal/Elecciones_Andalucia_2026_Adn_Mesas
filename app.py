@@ -48,6 +48,88 @@ def pct(value: float) -> str:
     return f"{value * 100:.1f}%".replace(".", ",")
 
 
+def inject_responsive_css() -> None:
+    st.markdown(
+        """
+        <style>
+        .block-container {
+            max-width: 1320px;
+            padding-top: 1.4rem;
+            padding-bottom: 2rem;
+        }
+        [data-testid="stMetric"] {
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 0.55rem;
+            padding: 0.75rem 0.85rem;
+        }
+        [data-testid="stMetricLabel"] p {
+            font-size: 0.78rem;
+            line-height: 1.15;
+        }
+        [data-testid="stMetricValue"] {
+            font-size: 1.35rem;
+            line-height: 1.15;
+        }
+        div[data-testid="stDataFrame"] {
+            width: 100%;
+        }
+        .stDownloadButton button {
+            width: 100%;
+        }
+        @media (max-width: 900px) {
+            .block-container {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+                padding-top: 0.9rem;
+            }
+            h1 {
+                font-size: 1.65rem !important;
+                line-height: 1.15 !important;
+            }
+            h2, h3 {
+                line-height: 1.2 !important;
+            }
+            [data-testid="stHorizontalBlock"] {
+                gap: 0.55rem;
+            }
+            [data-testid="stMetric"] {
+                padding: 0.62rem 0.68rem;
+            }
+            [data-testid="stMetricValue"] {
+                font-size: 1.1rem;
+            }
+            [data-testid="stMetricLabel"] p {
+                font-size: 0.72rem;
+            }
+            section[data-testid="stSidebar"] {
+                min-width: min(92vw, 22rem) !important;
+            }
+            div[data-testid="stDataFrame"] {
+                font-size: 0.78rem;
+            }
+            .stDownloadButton button {
+                min-height: 2.6rem;
+            }
+        }
+        @media (max-width: 560px) {
+            .block-container {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            [data-testid="stMetricValue"] {
+                font-size: 1rem;
+            }
+            div[data-testid="stAlert"] {
+                font-size: 0.86rem;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main() -> None:
     st.set_page_config(
         page_title="Dashboard ADN Electoral",
@@ -55,6 +137,7 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
+    inject_responsive_css()
     df = load_data()
     party_cols = [p for p in PARTIDOS if p in df.columns]
 
