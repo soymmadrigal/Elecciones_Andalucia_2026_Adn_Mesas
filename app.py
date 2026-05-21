@@ -83,6 +83,15 @@ def inject_responsive_css() -> None:
                 padding-right: 0.75rem;
                 padding-top: 0.9rem;
             }
+            div[data-testid="stHorizontalBlock"] {
+                flex-direction: column !important;
+                gap: 0.55rem !important;
+            }
+            div[data-testid="stHorizontalBlock"] > div {
+                width: 100% !important;
+                min-width: 100% !important;
+                flex: 1 1 100% !important;
+            }
             h1 {
                 font-size: 1.65rem !important;
                 line-height: 1.15 !important;
@@ -108,6 +117,13 @@ def inject_responsive_css() -> None:
             div[data-testid="stDataFrame"] {
                 font-size: 0.78rem;
             }
+            div[data-testid="stVegaLiteChart"] {
+                overflow-x: auto;
+            }
+            div[data-testid="stVegaLiteChart"] canvas,
+            div[data-testid="stVegaLiteChart"] svg {
+                max-width: 100% !important;
+            }
             .stDownloadButton button {
                 min-height: 2.6rem;
             }
@@ -120,8 +136,23 @@ def inject_responsive_css() -> None:
             [data-testid="stMetricValue"] {
                 font-size: 1rem;
             }
+            [data-testid="stMetricLabel"] p {
+                font-size: 0.68rem;
+            }
+            [data-testid="stMetric"] {
+                padding: 0.52rem 0.58rem;
+            }
+            [data-testid="stMarkdownContainer"] p,
+            [data-testid="stMarkdownContainer"] li {
+                font-size: 0.88rem;
+                line-height: 1.35;
+            }
             div[data-testid="stAlert"] {
                 font-size: 0.86rem;
+            }
+            div[data-testid="stDataFrame"] {
+                max-height: 420px;
+                overflow: auto;
             }
         }
         </style>
@@ -135,7 +166,7 @@ def main() -> None:
         page_title="Dashboard ADN Electoral",
         page_icon="",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="collapsed",
     )
     inject_responsive_css()
     df = load_data()
@@ -239,7 +270,7 @@ def main() -> None:
         st.vega_lite_chart(
             by_type,
             {
-                "height": 280,
+                "height": 240,
                 "mark": {"type": "bar", "cornerRadiusEnd": 4},
                 "encoding": {
                     "y": {
@@ -302,7 +333,7 @@ def main() -> None:
     st.vega_lite_chart(
         chart_df,
         {
-            "height": 430,
+            "height": 360,
             "mark": {"type": "circle", "opacity": 0.72},
             "encoding": {
                 "x": {
